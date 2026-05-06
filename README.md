@@ -1,37 +1,70 @@
 # USB & SD2 Games Monitor
 
-A bash-based background service designed for retro-gaming handhelds and consoles. This script automatically detects and mounts external USB drives or secondary SD cards (SD2) as the primary ROM directory.
+A bash-based set of helper scripts for retro-gaming handhelds and consoles. The original project provides an automatic USB/SD2 ROM monitor, while this fork also includes a manual USB games mount option for users who prefer to keep the system's normal `/roms` and `/roms2` setup untouched.
 
-Special thanks to **@SjslTech** for their contribution to this project.
+Special thanks to **@SjslTech** for the original work and contribution to this project.
 
-## 🚀 Main Features
-The script is built around four core functions to ensure seamless operation:
+## Choose Your Workflow
 
-*   **`run_monitor`**: The main loop that constantly watches for hardware connection at `/dev/sda1` (USB) or `/dev/mmcblk1p1` (SD2).
-*   **`do_mount`**: Handles the mounting logic. It checks for a specific signature (presence of `Tools` or `themes` folders) before switching the ROM directory.
-*   **`do_unmount`**: Safely reverts the system back to the internal storage when the external device is removed.
-*   **`mount_internal_to_roms`**: Ensures the internal SD card games are always available as a fallback.
+This fork keeps the original behavior available and adds an optional alternative. Use whichever script matches the way you want your device to handle external storage.
 
-## 📂 Supported Formats
-The script identifies and optimizes mount options (permissions, UID/GID) for the following file systems:
-*   **FAT32 (vfat)**
-*   **exFAT**
-*   **NTFS**
-*   **Ext4** (Standard Linux support)
+### `USB Games.sh`
 
-## 🛠️ Requirements & Security
-- **Security Check**: To prevent accidental mounting of non-gaming drives, the script **only** mounts devices containing a folder named either `/Tools` or `/themes`.
-- **Systemd**: Automatically installs itself as a system service (`usb-games-monitor.service`) for persistent background monitoring.
+This is the original automatic monitor script.
 
-## 🔧 Installation
- - **Copy all the ArkOS or dArkOS system folders** to your USB or SD2 drive. (from ArkOs system folder.zip or run Folder Creation Script.bat in your USB or sd2) 
- - **Place the games** you want in the corresponding folders.
- - **Transfer USB Games.sh script** on roms/tools.
-- **Run the script**
-- **Insert** your USB or SD2
+- Installs a systemd service named `usb-games-monitor`.
+- Watches for USB at `/dev/sda1` or SD2 at `/dev/mmcblk1p1`.
+- Mounts the detected external device as the active `/roms` directory.
+- Restores the internal ROM partition when the external device is removed.
+- Copies and bind-mounts `themes`, `tools`, and `Tools` support folders as needed.
 
-  Enjoy
+This is useful if you want the external USB or SD2 device to become the main ROM source automatically.
 
-### ☕ A coffee to offer?
+### `USB Games Mount.sh`
+
+This is the optional manual script added in this fork.
+
+- Does not install a background service.
+- Does not automatically watch for devices.
+- Does not replace `/roms` or `/roms2`.
+- Mounts USB at `/mnt/usbdrive`.
+- Detects whether EmulationStation is currently using `/roms` or `/roms2`.
+- Adds matching USB game folders under the active ROM path, for example `/roms2/gba/USB`.
+- Keeps the games already on the active SD card available, so you can play games from both the USB drive and the SD card currently in use.
+- Handles USB ports specially by exposing port scripts and folders directly inside the active `ports` folder when there is no name conflict.
+- Running the script again unmounts the USB game and port bindings.
+
+This is useful if you already use the built-in ArkOS/dArkOS SD2 mode, or the main SD card for ROMs, and only want USB games or ports added when you choose to mount them. The USB content works together with the games already present on the active storage instead of replacing that storage.
+
+## Folder Creation Scripts
+
+The folder creation scripts help prepare a USB drive or SD2 card with the expected ArkOS/dArkOS folder structure.
+
+- `Folder Creation Script.bat` is for Windows.
+- `Folder Creation Script.sh` is for Linux.
+
+Run the folder creation script from the root of the USB or SD2 drive. It creates the system folders in the current directory and then removes itself.
+
+## Supported Formats
+
+The scripts detect and use suitable mount options for common filesystems:
+
+- FAT32 (`vfat`)
+- exFAT
+- NTFS
+- ext4
+
+## Installation
+
+1. Copy all ArkOS or dArkOS system folders to your USB or SD2 drive, or run one of the folder creation scripts from the drive root.
+2. Place your games in the matching system folders.
+3. Choose which script you want to use:
+   - Copy `USB Games.sh` to `roms/tools` if you want the original automatic monitor behavior.
+   - Copy `USB Games Mount.sh` to `roms/tools` or `roms2/tools` if you want the manual optional USB mount behavior.
+4. Run the chosen script from the Tools menu.
+
+Enjoy.
+
+### A coffee to offer?
 
 [https://ko-fi.com/jason3x](https://ko-fi.com/jason3x)
